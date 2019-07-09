@@ -21,16 +21,26 @@ steps:
     versionSpec: '10.x'
   displayName: 'Install Node.js'
 
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(System.DefaultWorkingDirectory)'
+
+- task: ArchiveFiles@2
+- task: AzureRmWebAppDeployment@4
+  inputs:
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'AzureDevOps'
+    appType: 'webAppLinux'
+    WebAppName: 'businessplan1'
+    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    includeRootFolder: false
 
 - task: AzureRmWebAppDeployment@4
-
   inputs:
     azureSubscription: $(serviceConnectionToAzure)
     WebAppName: $(appName)
     Package: '$(System.DefaultWorkingDirectory)'
     GenerateWebConfig: true
-    WebConfigParameters: '-Handler iisnode -NodeStartFile server.js -appType node'
+    WebConfigParameters: '-Handler iisnode -NodeStartFile index.js -appType node'
